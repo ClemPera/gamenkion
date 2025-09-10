@@ -21,12 +21,13 @@ fn main() {
   esp_idf_svc::sys::link_patches();
   
   // Bind the log crate to the ESP Logging facilities
-  // esp_idf_svc::log::EspLogger::initialize_default();
-  
-  // log::info!("Hello, world!");
+  esp_idf_svc::log::EspLogger::initialize_default();
   
   let peripherals = Peripherals::take().unwrap();
   let pins = peripherals.pins;
+
+  let mut sensor = PinDriver::input_output_od(pins.gpio21).unwrap();
+  let dht = esp_idf_dht::read(&mut sensor).unwrap();
 
   let spi = peripherals.spi2;
   let sclk = pins.gpio12;
@@ -63,8 +64,9 @@ fn main() {
   // .draw(&mut display);
 
   //Draw text
-  // let style = MonoTextStyle::new(&FONT_10X20, Color::Black);
-  // Text::new("Hello Rust!", Point::new(10, 40), style).draw(&mut display).unwrap();
+  let style = MonoTextStyle::new(&FONT_10X20, Color::Black);
+  Text::new(&format!("{}°C", dht.temperature), Point::new(10, 80), style).draw(&mut display).unwrap();
+  Text::new(&format!("{}%", dht.humidity), Point::new(10, 40), style).draw(&mut display).unwrap();
   
   // // Display updated frame
   // epd.update_frame(&mut device, &display.buffer(), &mut delay).unwrap();

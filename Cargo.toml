@@ -29,9 +29,9 @@ esp-idf-svc = "0.51"
 epd-waveshare = { path = "src/lib/epd-waveshare" }
 embedded-hal = "1.0.0"
 embedded-graphics = "0.8.1"
-esp-idf-dht = "^0.1"
 esp-idf-hal = "0.45.2"
 anyhow = "^1.0.99"
+esp-idf-dht = { path = "src/lib/esp-idf-dht" }
 
 # --- Optional Embassy Integration ---
 # esp-idf-svc = { version = "0.51", features = ["critical-section", "embassy-time-driver", "embassy-sync"] }
