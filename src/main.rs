@@ -6,12 +6,15 @@ use epd_waveshare::{epd2in13_v2::*, prelude::*};
 // };
 
 use embedded_graphics::{
-    mono_font::{iso_8859_7::FONT_10X20, MonoTextStyle}, prelude::*, primitives::Rectangle, text::Text
+    image::ImageRaw, mono_font::{ascii::FONT_9X18_BOLD, mapping, DecorationDimensions, MonoFont, MonoTextStyle}, pixelcolor::BinaryColor, prelude::*, primitives::Rectangle, text::Text
 };
 
 use esp_idf_svc::hal::{delay::Ets, gpio::{AnyIOPin, PinDriver}, spi::{config::Config, SpiDriverConfig}};
 use esp_idf_svc::hal::spi::SpiDeviceDriver;
 use esp_idf_svc::hal::prelude::Peripherals;
+
+use u8g2_fonts::{fonts::u8g2_font_ncenB24_tf, types::{FontColor, HorizontalAlignment, VerticalPosition}, Content, FontRenderer};
+
 
 use esp_idf_dht;
 
@@ -54,7 +57,7 @@ fn main() {
   
   // Use display graphics from embedded-graphics
   let mut display = Display2in13::default();
-  
+
   display.clear(Color::White).unwrap();
   display.set_rotation(DisplayRotation::Rotate90);
   // display.fill_solid(&Rectangle::new(Point::new(0, 0), Size::new(30, 200)), Color::Black).unwrap();
@@ -63,17 +66,34 @@ fn main() {
   // .into_styled(PrimitiveStyle::with_stroke(Color::White, 5))
   // .draw(&mut display);
 
-  //Draw text
-  let style = MonoTextStyle::new(&FONT_10X20, Color::Black);
-  Text::new(&format!("{}°C", dht.temperature), Point::new(10, 80), style).draw(&mut display).unwrap();
-  Text::new(&format!("{}%", dht.humidity), Point::new(10, 40), style).draw(&mut display).unwrap();
-  
-  // // Display updated frame
-  // epd.update_frame(&mut device, &display.buffer(), &mut delay).unwrap();
-  // epd.display_frame(&mut device, &mut delay).unwrap();
+  let font = FontRenderer::new::<u8g2_font_ncenB24_tf>();
+  let text = "yo";
 
+  font.render_aligned(
+      format!("{}°C", dht.temperature).as_str(),
+      display.bounding_box().center() + Point::new(-50, 10),
+      VerticalPosition::Baseline,
+      HorizontalAlignment::Center,
+      FontColor::Transparent(Color::Black),
+      &mut display,
+  ).unwrap();
+
+  font.render_aligned(
+      format!("{} %", dht.humidity).as_str(),
+      display.bounding_box().center() + Point::new(60, 10),
+      VerticalPosition::Baseline,
+      HorizontalAlignment::Center,
+      FontColor::Transparent(Color::Black),
+      &mut display,
+  ).unwrap();
+
+  //Draw text
+  // let style = MonoTextStyle::new(, Color::Black);
+
+  // Text::new(&format!("{}°C", dht.temperature), Point::new(20, 60), style).draw(&mut display).unwrap();
+  // Text::new(&format!("{} %", dht.humidity), Point::new(150, 60), style).draw(&mut display).unwrap();
+  
   epd.update_and_display_frame(&mut device, &display.buffer(), &mut delay).unwrap();
   
-  // // Set the EPD to sleep
   epd.sleep(&mut device, &mut delay).unwrap();
 }
