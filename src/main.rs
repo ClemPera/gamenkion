@@ -95,7 +95,6 @@ fn main() {
   // display.fill_solid(&Rectangle::new(Point::new(10, 50), Size::new(80, 30)), Color::Black).unwrap();
   // display.fill_solid(&Rectangle::new(Point::new(140, 50), Size::new(55, 30)), Color::Black).unwrap();
 
-
   let buf = display.buffer().len();
   log::info!("buffer2: {buf:?}");
 
